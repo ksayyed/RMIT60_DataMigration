@@ -22,7 +22,12 @@ def process_Campuses_data(DBParams, DataDirectory):
         
         # Connect to the PostgreSQL database server
         logging.info('Connecting to the PostgreSQL database...')
-        conn = psycopg2.connect(**params)
+        #conn = psycopg2.connect(**params)
+        conn = psycopg2.connect(database=params.path[1:],
+                                user=params.username,
+                                password=params.password,
+                                host=params.hostname,
+                                port=params.port)
 
         # create a cursor
         cur = conn.cursor()

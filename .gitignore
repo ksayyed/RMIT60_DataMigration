@@ -4,3 +4,4 @@ staticfiles
 .env
 *.log
 *.xlsx
+*.test
