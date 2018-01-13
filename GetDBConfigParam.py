@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
+import logging
 import os
 import psycopg2
 from urllib import parse
-#from configparser import ConfigParser
+from configparser import ConfigParser
 
 ### Read Database Config 
 #def GetDBConfigParam(filename='MyConfig.ini', section='postgresql'):
@@ -20,8 +21,8 @@ from urllib import parse
 #            db[param[0]] = param[1]
 #    else:
 #        raise Exception('Section {0} not found in the {1} file'.format(section, filename))
-#
-#    print(db)
+
+#    logging.info('params: ' + str(db))
 #    return db
 
 ### Read Database Config from .env file 
@@ -29,7 +30,7 @@ def GetDBConfigParam():
 
     parse.uses_netloc.append("postgres")
     url = parse.urlparse(os.environ["DATABASE_URL"])
-#    print(url)
+    logging.info('DATABASE_URL: ' + str(url))
 
     return url
  

@@ -165,7 +165,7 @@ def process_POIs_data(DBParams, DataDirectory):
                 
             # If row does not exist = Insert the record    
             if row_exist is None:
-               logging.info('Data insert')
+               #logging.info('Data insert')
 
                sql_insert = """ INSERT INTO public.pois(name, 
                                                         description, 
@@ -297,7 +297,7 @@ if __name__ == '__main__':
     split_LogFullPathBase = LogFullPathBase.split('.')
     LogFullPath = ".".join(split_LogFullPathBase[:-1]) + '_' + "-".join(t) + '.' + ".".join(split_LogFullPathBase[-1:])
 
-    logging.basicConfig(level=logging.DEBUG, filename=LogFullPath, filemode="a+",
+    logging.basicConfig(level=logging.DEBUG, handlers=[logging.FileHandler(LogFullPath, 'a+', 'utf-8')],
                             format="%(asctime)-15s - %(levelname)-8s %(message)s")
     logging.info('Log file: ' + str(LogFullPath))
     

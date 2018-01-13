@@ -137,24 +137,26 @@ def process_Tasks_data(DBParams, DataDirectory):
             cur.execute(sql_exist, (TaskKey,))
             row_exist = cur.fetchone()
 
-            dbstart = row_exist[5]
-            if dbstart is None:
-                dbstartdate = dbstart
-            else:
-                dbstartdate = dbstart.strftime('%Y-%m-%d')
+            dbstart =None
+            dbstartdate = None
+            if row_exist is not None:
+                dbstart = row_exist[5]
+                if dbstart is not None:
+                    dbstartdate = dbstart.strftime('%Y-%m-%d')
 
-            dbend = row_exist[6]
-            if dbend is None:
-                dbenddate = dbend
-            else:
-                dbenddate = dbend.strftime('%Y-%m-%d')
+            dbend = None
+            dbenddate = None
+            if row_exist is not None:
+                dbend = row_exist[6]
+                if dbend is not None:
+                    dbenddate = dbend.strftime('%Y-%m-%d')
 
             #if row_exist is not None:
-            #    logging.info('DB data: ' + str(row_exist[0:]))
-            #    logging.info('DB ID: ' + str(row_exist[10]))
+            #   logging.info('DB data: ' + str(row_exist[0:]))
+            #   logging.info('DB ID: ' + str(row_exist[10]))
             #else:
-            #    logging.info('No DB Data')
-                
+            #   logging.info('No DB Data')
+
             # If row does not exist = Insert the record    
             if row_exist is None:
                 #logging.info('Data inset')
@@ -219,7 +221,7 @@ def process_Tasks_data(DBParams, DataDirectory):
                     updated_rows = cur.rowcount
                     conn.commit()
                     db_updated_rows = db_updated_rows + updated_rows             #Reconciliation
-                    logging.info(updated_rows, 'Record/s updated for ID, Key: ', row_exist[10], ', ', TaskKey, '\n')
+                    logging.info(str(updated_rows) + 'Record/s updated for ID, Key: ' + str(row_exist[10]) + ', ' + str(TaskKey))
                 else:
                     #logging.info('Data delete')
                     deleted_rows = cur.rowcount
@@ -265,7 +267,7 @@ if __name__ == '__main__':
     split_LogFullPathBase = LogFullPathBase.split('.')
     LogFullPath = ".".join(split_LogFullPathBase[:-1]) + '_' + "-".join(t) + '.' + ".".join(split_LogFullPathBase[-1:])
 
-    logging.basicConfig(level=logging.DEBUG, filename=LogFullPath, filemode="a+",
+    logging.basicConfig(level=logging.DEBUG, handlers=[logging.FileHandler(LogFullPath, 'a+', 'utf-8')],
                             format="%(asctime)-15s - %(levelname)-8s %(message)s")
     logging.info('Log file: ' + str(LogFullPath))
     

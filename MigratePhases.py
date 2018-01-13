@@ -158,7 +158,7 @@ def process_Phases_data(DBParams, DataDirectory):
                     deleted_rows = cur.rowcount
                     conn.commit()
                     db_deleted_rows = db_deleted_rows + deleted_rows             #Reconciliation
-                    logging.info(str(deleted_rows) + 'Record/s logically deleted for ID, Key: ', row_exist[0], ', ', PhaseKey)
+                    logging.info(str(deleted_rows) + 'Record/s logically deleted for ID, Key: '+ str(row_exist[0]) + ', ' + str(PhaseKey))
 
             # If row exist = No action if Delete is "Yes" and record is inactive
             elif (Delete in ['Yes', 'YES', 'yes'] and row_exist[2] == 'Inactive'):
@@ -198,7 +198,7 @@ if __name__ == '__main__':
     split_LogFullPathBase = LogFullPathBase.split('.')
     LogFullPath = ".".join(split_LogFullPathBase[:-1]) + '_' + "-".join(t) + '.' + ".".join(split_LogFullPathBase[-1:])
 
-    logging.basicConfig(level=logging.DEBUG, filename=LogFullPath, filemode="a+",
+    logging.basicConfig(level=logging.DEBUG, handlers=[logging.FileHandler(LogFullPath, 'a+', 'utf-8')],
                             format="%(asctime)-15s - %(levelname)-8s %(message)s")
     logging.info('Log file: ' + str(LogFullPath))
     
