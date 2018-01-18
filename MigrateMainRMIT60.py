@@ -14,7 +14,7 @@ from GetS3Session import GetS3Session
 from MigrateCampuses import process_Campuses_data
 from MigrateCategories import process_Categories_data 
 from MigratePhases import process_Phases_data
-from MigratePOI import process_POIs_data
+from MigratePOIs import process_POIs_data
 from MigrateTasks import process_Tasks_data
 
 
