@@ -1,13 +1,18 @@
 #!/usr/bin/python
 
+import boto3
+import botocore
 import logging
 import openpyxl
+import csv
 import psycopg2
 import os
+import sys
 from datetime import datetime
-from GetDBConfigParam import GetDBConfigParam 
+from GetDBConfigParam import GetDBConfigParam
+from GetS3Session import GetS3Session
 
-def process_POIs_data(DBParams, DataDirectory):
+def process_POIs_data(DBParams, s3_bucket, local_file_name):
 
     conn = None
     file_total_rows = 0
@@ -51,11 +56,11 @@ def process_POIs_data(DBParams, DataDirectory):
         Now = datetime.now()
 
         # Set file location
-        logging.info('File Location: ' + str(DataDirectory))
-        logging.info('Workbook & Sheet Name: Wayfinding Locations.xlsx, POIs')
+        logging.info('Workbook, Sheet Name: ' + str(local_file_name) + ', POIs')
+        logging.info('Workbook Location: ' + str(os.getcwd())) 
 
         # Set Sheet for read
-        book = openpyxl.load_workbook(filename = 'Wayfinding Locations.xlsx')
+        book = openpyxl.load_workbook(filename = local_file_name)
         sheet = book['POIs']
         file_total_rows = sheet.max_row             #Reconciliation
         logging.info('Total Columns: ' + str(sheet.max_column) + ', Total Rows: ' + str(sheet.max_row))
@@ -287,29 +292,87 @@ def process_POIs_data(DBParams, DataDirectory):
         
     return reconciliation_data
 
+
 if __name__ == '__main__':
 
-    # Get Log file defined
+    # Get time
     t = (str(datetime.now().year), str(datetime.now().month), str(datetime.now().day),
          str(datetime.now().hour), str(datetime.now().minute), str(datetime.now().second))
-    LogDirectory = os.getcwd() + r'\RMIT60_FileSystem'
-    LogFullPathBase = LogDirectory + r'\logfile.log'
-    split_LogFullPathBase = LogFullPathBase.split('.')
-    LogFullPath = ".".join(split_LogFullPathBase[:-1]) + '_' + "-".join(t) + '.' + ".".join(split_LogFullPathBase[-1:])
 
-    logging.basicConfig(level=logging.DEBUG, handlers=[logging.FileHandler(LogFullPath, 'a+', 'utf-8')],
+    # Get Log file defined
+    # Log level "DEBUG" (logging.DEBUG) generate many debug log messages from Boto3
+    LogFilename = "-".join(t) + '_' + r'logfile.log'
+    logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(LogFilename, 'a+', 'utf-8')],
                             format="%(asctime)-15s - %(levelname)-8s %(message)s")
-    logging.info('Log file: ' + str(LogFullPath))
-    
+    logging.info('Log file: ' + str(LogFilename))
+
+    # Recon file
+    ReconFilename = "-".join(t) + '_' + r'reconfile.csv'
+    ReconFile = open(ReconFilename, "w")
+    ReconFilewriter = csv.writer(ReconFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
+    logging.info('Recon file: ' + str(ReconFilename))
+
+    # Recon file header
+    ReconHeader = ['FileName' , 'File Total Rows' , 'DB Inserted Rows' , 'DB Updated Rows' , 'DB Deleted Rows' , 'File Nochange Rows']
+    ReconFilewriter.writerow(ReconHeader)
+
     # read connection parameters
     params = GetDBConfigParam()
     DBParams = params
 
-    # Set File System Path as Current Work Directory (CWD)
-    SourceDirectory = os.getcwd()
-    logging.info('Source Location: ' + str(SourceDirectory))
+    # get S3 session established
+    session = GetS3Session()
 
-    os.chdir(SourceDirectory + r'\RMIT60_FileSystem')
-    DataDirectory = os.getcwd()
+    # get the S3 bucket
+    s3_resource = session.resource('s3')
+    bucket_name = 'rmit60.ks'
+    s3_bucket = s3_resource.Bucket(bucket_name)
 
-    process_POIs_data(DBParams, DataDirectory)
+    # check for the file and process it
+    POIsFilename = 'Wayfinding Locations.xlsx'
+    key_file_name = POIsFilename
+    POIsLocalFilename = "-".join(t) + '_' + POIsFilename
+    local_file_name = POIsLocalFilename
+    try:
+        s3_bucket.download_file(key_file_name, local_file_name)
+        logging.info('================================================================================')
+        logging.info(str(key_file_name) + ' available for local processing as ' + str(local_file_name) + '.')
+        archive_file_name = 'archive/' + local_file_name
+        s3_bucket.upload_file(local_file_name, archive_file_name)
+        logging.info(str(local_file_name) + ' is transferred to S3 bucket.')
+        logging.info('================================================================================')
+        logging.info('Processing POIs...')
+
+        POIs_reconciliation_data = process_POIs_data(params, s3_bucket, local_file_name)
+        ReconFilewriter.writerow([POIs_reconciliation_data[0], POIs_reconciliation_data[1], POIs_reconciliation_data[2],
+                                 POIs_reconciliation_data[3], POIs_reconciliation_data[4], POIs_reconciliation_data[5]])
+
+        # Delete source files as they are processed and copied to S3 additing timestamp
+        logging.info(str(key_file_name) + ' will be deleted from S3 as ' + str(local_file_name) + ' is added to S3.')
+        # Delete is not required for single file processing
+        #s3_bucket.Object(key_file_name).delete()
+
+    except botocore.exceptions.ClientError as error:
+            if error.response['Error']['Code'] == "404":
+                logging.info('================================================================================')                
+                logging.info(str(key_file_name) + ' not available for processing.')
+                logging.info('================================================================================')
+                ReconFilewriter.writerow(['POIs', 0, 0, 0, 0, 0])
+            else:
+                logging.error(error)
+
+
+    # Recon file close and move to S3 
+    ReconFile.close()
+    local_file_name = ReconFilename
+    archive_file_name = 'archive/' + local_file_name
+    s3_bucket.upload_file(local_file_name, archive_file_name)
+    logging.info(str(ReconFilename) + ' is transferred to S3 bucket.')
+
+    # Log file close and move to S3
+    logging.info(str(LogFilename) + ' will be closed and then transferred to S3 bucket.')
+    logging.info('End of the Job')
+    logging.shutdown()
+    local_file_name = LogFilename
+    archive_file_name = 'archive/' + local_file_name
+    s3_bucket.upload_file(local_file_name, archive_file_name)

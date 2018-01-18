@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import boto3
+import botocore
 import logging
 import openpyxl
 import csv
@@ -8,6 +10,7 @@ import os
 import sys
 from datetime import datetime
 from GetDBConfigParam import GetDBConfigParam 
+from GetS3Session import GetS3Session 
 from MigrateCampuses import process_Campuses_data
 from MigrateCategories import process_Categories_data 
 from MigratePhases import process_Phases_data
@@ -20,110 +23,141 @@ def process_all_data():
     # read connection parameters
     params = GetDBConfigParam()
 
-    # Set File System Path as Current Work Directory (CWD)
-    SourceDirectory = os.getcwd()
-    logging.info('Source Location: ' + str(SourceDirectory))
+    # get S3 session established
+    session = GetS3Session()
 
-    os.chdir(SourceDirectory + r'\RMIT60_FileSystem')
-    DataDirectory = os.getcwd()
-    #logging.info('File Location: ' + str(DataDirectory))
+    # get the S3 bucket
+    s3_resource = session.resource('s3')
+    bucket_name = 'rmit60.ks'
+    s3_bucket = s3_resource.Bucket(bucket_name)
 
+    # check for the file and process it
     POIsFilename = 'Wayfinding Locations.xlsx'
-    if os.path.isfile(POIsFilename):
-        logging.info(str(POIsFilename) + ' available for processing.')
-        logging.info('--------------------------------------------------------------------------------')
-        logging.info('Working Location for Categories: ' + str(os.getcwd()))
-        Categories_reconciliation_data = process_Categories_data(params, DataDirectory)
-        #logging.info(str(Categories_reconciliation_data))
-
-        logging.info('--------------------------------------------------------------------------------')
-        logging.info('Working Location for Campuses: ' + str(os.getcwd()))
-        Campuses_reconciliation_data = process_Campuses_data(params, DataDirectory)
-        #logging.info(str(Campuses_reconciliation_data))
-
-        logging.info('--------------------------------------------------------------------------------')
-        logging.info('Working Location for POIs: ' + str(os.getcwd()))
-        POIs_reconciliation_data = process_POIs_data(params, DataDirectory)
-        #logging.info(str(POIs_reconciliation_data))
-    else:
-        logging.info(str(POIsFilename) + ' not available for processing.')
-
-    TasksFilename = 'Onboarding Tasks.xlsx'
-    if os.path.isfile(TasksFilename):
-        logging.info(str(TasksFilename) + ' available for processing.')
-        logging.info('--------------------------------------------------------------------------------')
-        logging.info('Working Location for Phases: ' + str(os.getcwd()))
-        Phases_reconciliation_data = process_Phases_data(params, DataDirectory)
-        #logging.info(str(Phases_reconciliation_data))
-
-        logging.info('--------------------------------------------------------------------------------')
-        logging.info('Working Location for Tasks: ' + str(os.getcwd()))
-        Tasks_reconciliation_data = process_Tasks_data(params, DataDirectory)
-        #logging.info(str(Tasks_reconciliation_data))
-    else:
-        logging.info(str(TasksFilename) + ' not available for processing.')
-
-    #logging.info(str(os.getcwd()))
-
-    #----------------------Start Reconciliation Data---------------------------------
-    #All recon data
-    if os.path.isfile(POIsFilename):
+    key_file_name = POIsFilename
+    POIsLocalFilename = "-".join(t) + '_' + POIsFilename
+    local_file_name = POIsLocalFilename
+    try:
+        s3_bucket.download_file(key_file_name, local_file_name)
+        logging.info('================================================================================')
+        logging.info(str(key_file_name) + ' available for local processing as ' + str(local_file_name) + '.')
+        archive_file_name = 'archive/' + local_file_name
+        s3_bucket.upload_file(local_file_name, archive_file_name)
+        logging.info(str(local_file_name) + ' is transferred to S3 bucket.')
+        logging.info('================================================================================')
+        logging.info('Pocessing Categories....')
+        Categories_reconciliation_data = process_Categories_data(params, s3_bucket, local_file_name)
         ReconFilewriter.writerow([Categories_reconciliation_data[0], Categories_reconciliation_data[1], Categories_reconciliation_data[2],
                                  Categories_reconciliation_data[3], Categories_reconciliation_data[4], Categories_reconciliation_data[5]])
+
+        logging.info('--------------------------------------------------------------------------------')
+        logging.info('Processing Campuses...' )
+        Campuses_reconciliation_data = process_Campuses_data(params, s3_bucket, local_file_name)
         ReconFilewriter.writerow([Campuses_reconciliation_data[0], Campuses_reconciliation_data[1], Campuses_reconciliation_data[2],
                                  Campuses_reconciliation_data[3], Campuses_reconciliation_data[4], Campuses_reconciliation_data[5]])
+
+        logging.info('--------------------------------------------------------------------------------')
+        logging.info('Processing POIs...' )
+        POIs_reconciliation_data = process_POIs_data(params, s3_bucket, local_file_name)
         ReconFilewriter.writerow([POIs_reconciliation_data[0], POIs_reconciliation_data[1], POIs_reconciliation_data[2],
                                  POIs_reconciliation_data[3], POIs_reconciliation_data[4], POIs_reconciliation_data[5]])
-    else:
-        ReconFilewriter.writerow(['categories', 0, 0, 0, 0, 0])
-        ReconFilewriter.writerow(['campuses', 0, 0, 0, 0, 0])
-        ReconFilewriter.writerow(['POIs', 0, 0, 0, 0, 0])
+        logging.info('--------------------------------------------------------------------------------')
 
-    if os.path.isfile(TasksFilename):
+        # Delete source files to stop processing twice. This file is copied to S3 additing timestamp
+        logging.info(str(key_file_name) + ' will be deleted from S3 as ' + str(local_file_name) + ' is added to S3.')
+        #s3_bucket.Object(key_file_name).delete()
+        
+    except botocore.exceptions.ClientError as error:
+            if error.response['Error']['Code'] == "404":
+                logging.info('================================================================================')                
+                logging.info(str(key_file_name) + ' not available for processing.')
+                logging.info('================================================================================')
+                ReconFilewriter.writerow(['categories', 0, 0, 0, 0, 0])
+                ReconFilewriter.writerow(['campuses', 0, 0, 0, 0, 0])
+                ReconFilewriter.writerow(['POIs', 0, 0, 0, 0, 0])
+            else:
+                #raise
+                logging.error(error)
+
+    # check for the file and process it
+    TasksFilename = 'Onboarding Tasks.xlsx'
+    key_file_name = TasksFilename
+    TasksLocalFilename = "-".join(t) + '_' + TasksFilename 
+    local_file_name = TasksLocalFilename
+    try:
+        s3_bucket.download_file(key_file_name, local_file_name)
+        logging.info('================================================================================')
+        logging.info(str(key_file_name) + ' available for local processing as ' + str(local_file_name) + '.')
+        archive_file_name = 'archive/' + local_file_name
+        s3_bucket.upload_file(local_file_name, archive_file_name)
+        logging.info(str(local_file_name) + ' is transferred to S3 bucket.')
+        logging.info('================================================================================')
+
+        logging.info('Processing Phases...')
+        Phases_reconciliation_data = process_Phases_data(params, s3_bucket, local_file_name)
         ReconFilewriter.writerow([Phases_reconciliation_data[0], Phases_reconciliation_data[1], Phases_reconciliation_data[2],
                                  Phases_reconciliation_data[3], Phases_reconciliation_data[4], Phases_reconciliation_data[5]])
+
+        logging.info('--------------------------------------------------------------------------------')
+        logging.info('Processing Tasks...')
+        Tasks_reconciliation_data = process_Tasks_data(params, s3_bucket, local_file_name)
         ReconFilewriter.writerow([Tasks_reconciliation_data[0], Tasks_reconciliation_data[1], Tasks_reconciliation_data[2],
                                  Tasks_reconciliation_data[3], Tasks_reconciliation_data[4], Tasks_reconciliation_data[5]])
-    else:
-        ReconFilewriter.writerow(['phases', 0, 0, 0, 0, 0])
-        ReconFilewriter.writerow(['tasks', 0, 0, 0, 0, 0])
+        logging.info('--------------------------------------------------------------------------------')
 
+        # Delete source files to stop processing twice. This file is copied to S3 additing timestamp
+        logging.info(str(key_file_name) + ' will be deleted from S3 as ' + str(local_file_name) + ' is added to S3.')
+        #s3_bucket.Object(key_file_name).delete()
+            
+    except botocore.exceptions.ClientError as error:
+            if error.response['Error']['Code'] == "404":
+                logging.info('================================================================================')                
+                logging.info(str(key_file_name) + ' not available for processing.')
+                logging.info('================================================================================')                
+
+                ReconFilewriter.writerow(['phases', 0, 0, 0, 0, 0])
+                ReconFilewriter.writerow(['tasks', 0, 0, 0, 0, 0])
+            else:
+                #raise
+                logging.error(error)
+
+    # Recon file close and move to S3 
     ReconFile.close()
-    #------------------------End Reconciliation Data---------------------------------
+    local_file_name = ReconFilename
+    archive_file_name = 'archive/' + local_file_name
+    s3_bucket.upload_file(local_file_name, archive_file_name)
+    logging.info(str(ReconFilename) + ' is transferred to S3 bucket.')
 
+    # Log file close and move to S3
+    logging.info(str(LogFilename) + ' will be closed and then transferred to S3 bucket.')
+    logging.info('End of the Job')
+    logging.shutdown()
+    local_file_name = LogFilename
+    archive_file_name = 'archive/' + local_file_name
+    s3_bucket.upload_file(local_file_name, archive_file_name)
+    
     return
 
 if __name__ == '__main__':
 
-    # Get Log file defined
+    # Get time
     t = (str(datetime.now().year), str(datetime.now().month), str(datetime.now().day),
          str(datetime.now().hour), str(datetime.now().minute), str(datetime.now().second))
-    LogDirectory = os.getcwd() + r'\RMIT60_FileSystem'
-    LogFullPathBase = LogDirectory + r'\logfile.log'
-    split_LogFullPathBase = LogFullPathBase.split('.')
-    LogFullPath = ".".join(split_LogFullPathBase[:-1]) + '_' + "-".join(t) + '.' + ".".join(split_LogFullPathBase[-1:])
 
-    logging.basicConfig(level=logging.DEBUG, handlers=[logging.FileHandler(LogFullPath, 'a+', 'utf-8')],
+    # Get Log file defined
+    # Log level "DEBUG" (logging.DEBUG) generate many debug log messages from Boto3
+    LogFilename = "-".join(t) + '_' + r'logfile.log'
+    logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(LogFilename, 'a+', 'utf-8')],
                             format="%(asctime)-15s - %(levelname)-8s %(message)s")
-    logging.info('Log file: ' + str(LogFullPath))
+    logging.info('Log file: ' + str(LogFilename))
 
-    ReconDirectory = os.getcwd() + r'\RMIT60_FileSystem'
-    ReconFullPathBase = ReconDirectory + r'\reconfile.csv'
-    split_ReconFullPathBase = ReconFullPathBase.split('.')
-    ReconFullPath = ".".join(split_ReconFullPathBase[:-1]) + '_' + "-".join(t) + '.' + ".".join(split_ReconFullPathBase[-1:])
-
-    
-    ReconFile = open(ReconFullPath, "w")
+    # Recon file
+    ReconFilename = "-".join(t) + '_' + r'reconfile.csv'
+    ReconFile = open(ReconFilename, "w")
     ReconFilewriter = csv.writer(ReconFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
+    logging.info('Recon file: ' + str(ReconFilename))
+
+    # Recon file header
     ReconHeader = ['FileName' , 'File Total Rows' , 'DB Inserted Rows' , 'DB Updated Rows' , 'DB Deleted Rows' , 'File Nochange Rows']
     ReconFilewriter.writerow(ReconHeader)
 
     process_all_data()
-
-
-
-    #split_filename = filename.split('.')
-    #os.rename(filename, split_filename[:-1] + '_' + '-'.join(t))
-    #logging.basicConfig(level=logging.DEBUG, filename="logfile", filemode="a+",
-    #                       format=' %(asctime)s - %(levelname)s - %(message)s')
-

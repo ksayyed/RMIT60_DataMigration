@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import boto3
 import logging
 import os
 import psycopg2
