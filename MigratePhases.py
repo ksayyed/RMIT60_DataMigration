@@ -225,8 +225,9 @@ if __name__ == '__main__':
 
     # get the S3 bucket
     s3_resource = session.resource('s3')
-    bucket_name = 'rmit60.ks'
+    bucket_name = str(os.environ["AWS_BUCKET_NAME"])
     s3_bucket = s3_resource.Bucket(bucket_name)
+    logging.info('S3 bucket name: ' + str(bucket_name))
 
     # check for the file and process it
     TasksFilename = 'Onboarding Tasks.xlsx'
@@ -237,7 +238,7 @@ if __name__ == '__main__':
         s3_bucket.download_file(key_file_name, local_file_name)
         logging.info('================================================================================')
         logging.info(str(key_file_name) + ' available for local processing as ' + str(local_file_name) + '.')
-        archive_file_name = 'archive/' + local_file_name
+        archive_file_name = 'archive/' + "-".join(t) + '/' + local_file_name
         s3_bucket.upload_file(local_file_name, archive_file_name)
         logging.info(str(local_file_name) + ' is transferred to S3 bucket.')
         logging.info('================================================================================')
@@ -247,9 +248,9 @@ if __name__ == '__main__':
         ReconFilewriter.writerow([Phases_reconciliation_data[0], Phases_reconciliation_data[1], Phases_reconciliation_data[2],
                                  Phases_reconciliation_data[3], Phases_reconciliation_data[4], Phases_reconciliation_data[5]])
 
-        # Delete source files as they are processed and copied to S3 additing timestamp
-        logging.info(str(key_file_name) + ' will be deleted from S3 as ' + str(local_file_name) + ' is added to S3.')
         # Delete is not required for single file processing
+        # Delete source files as they are processed and copied to S3 additing timestamp
+        #logging.info(str(key_file_name) + ' will be deleted from S3 as ' + str(local_file_name) + ' is added to S3.')
         #s3_bucket.Object(key_file_name).delete()
 
     except botocore.exceptions.ClientError as error:
@@ -265,7 +266,7 @@ if __name__ == '__main__':
     # Recon file close and move to S3 
     ReconFile.close()
     local_file_name = ReconFilename
-    archive_file_name = 'archive/' + local_file_name
+    archive_file_name = 'archive/' + "-".join(t) + '/' + local_file_name
     s3_bucket.upload_file(local_file_name, archive_file_name)
     logging.info(str(ReconFilename) + ' is transferred to S3 bucket.')
 
@@ -274,5 +275,5 @@ if __name__ == '__main__':
     logging.info('End of the Job')
     logging.shutdown()
     local_file_name = LogFilename
-    archive_file_name = 'archive/' + local_file_name
+    archive_file_name = 'archive/' + "-".join(t) + '/' + local_file_name
     s3_bucket.upload_file(local_file_name, archive_file_name)

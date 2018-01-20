@@ -28,38 +28,81 @@ def process_all_data():
 
     # get the S3 bucket
     s3_resource = session.resource('s3')
-    bucket_name = 'rmit60.ks'
+    bucket_name = str(os.environ["AWS_BUCKET_NAME"])
     s3_bucket = s3_resource.Bucket(bucket_name)
+    logging.info('S3 bucket name: ' + str(bucket_name))
 
     # check for the file and process it
     POIsFilename = 'Wayfinding Locations.xlsx'
     key_file_name = POIsFilename
     POIsLocalFilename = "-".join(t) + '_' + POIsFilename
     local_file_name = POIsLocalFilename
+    file_count = 0
     try:
         s3_bucket.download_file(key_file_name, local_file_name)
+        file_count = file_count + 1   # Make sure, data file is avaiable 
+
         logging.info('================================================================================')
+
         logging.info(str(key_file_name) + ' available for local processing as ' + str(local_file_name) + '.')
-        archive_file_name = 'archive/' + local_file_name
+        archive_file_name = 'archive/' + "-".join(t) + '/' + local_file_name
         s3_bucket.upload_file(local_file_name, archive_file_name)
         logging.info(str(local_file_name) + ' is transferred to S3 bucket.')
+
         logging.info('================================================================================')
+
+
         logging.info('Pocessing Categories....')
         Categories_reconciliation_data = process_Categories_data(params, s3_bucket, local_file_name)
         ReconFilewriter.writerow([Categories_reconciliation_data[0], Categories_reconciliation_data[1], Categories_reconciliation_data[2],
                                  Categories_reconciliation_data[3], Categories_reconciliation_data[4], Categories_reconciliation_data[5]])
 
+
+        recon_local_file_name = ReconFilename
+        recon_archive_file_name = 'archive/' + "-".join(t) + '/' + recon_local_file_name
+        s3_bucket.upload_file(recon_local_file_name, recon_archive_file_name)
+        logging.info(str(ReconFilename) + ' is transferred to S3 bucket after processing data.')
+
+        logging.info(str(LogFilename) + ' will be transferred to S3 bucket.')
+        log_local_file_name = LogFilename
+        log_archive_file_name = 'archive/' + "-".join(t) + '/' + log_local_file_name
+        s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
+
         logging.info('--------------------------------------------------------------------------------')
+
         logging.info('Processing Campuses...' )
         Campuses_reconciliation_data = process_Campuses_data(params, s3_bucket, local_file_name)
         ReconFilewriter.writerow([Campuses_reconciliation_data[0], Campuses_reconciliation_data[1], Campuses_reconciliation_data[2],
                                  Campuses_reconciliation_data[3], Campuses_reconciliation_data[4], Campuses_reconciliation_data[5]])
 
+
+        recon_local_file_name = ReconFilename
+        recon_archive_file_name = 'archive/' + "-".join(t) + '/' + recon_local_file_name
+        s3_bucket.upload_file(recon_local_file_name, recon_archive_file_name)
+        logging.info(str(ReconFilename) + ' is transferred to S3 bucket after processing data.')
+
+        logging.info(str(LogFilename) + ' will be transferred to S3 bucket.')
+        log_local_file_name = LogFilename
+        log_archive_file_name = 'archive/' + "-".join(t) + '/' + log_local_file_name
+        s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
+
         logging.info('--------------------------------------------------------------------------------')
+
         logging.info('Processing POIs...' )
         POIs_reconciliation_data = process_POIs_data(params, s3_bucket, local_file_name)
         ReconFilewriter.writerow([POIs_reconciliation_data[0], POIs_reconciliation_data[1], POIs_reconciliation_data[2],
                                  POIs_reconciliation_data[3], POIs_reconciliation_data[4], POIs_reconciliation_data[5]])
+
+        recon_local_file_name = ReconFilename
+        recon_archive_file_name = 'archive/' + "-".join(t) + '/' + recon_local_file_name
+        s3_bucket.upload_file(recon_local_file_name, recon_archive_file_name)
+        logging.info(str(ReconFilename) + ' is transferred to S3 bucket after processing data.')
+
+        logging.info(str(LogFilename) + ' will be transferred to S3 bucket.')
+        log_local_file_name = LogFilename
+        log_archive_file_name = 'archive/' + "-".join(t) + '/' + log_local_file_name
+        s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
+
         logging.info('--------------------------------------------------------------------------------')
 
         # Delete source files to stop processing twice. This file is copied to S3 additing timestamp
@@ -85,9 +128,10 @@ def process_all_data():
     local_file_name = TasksLocalFilename
     try:
         s3_bucket.download_file(key_file_name, local_file_name)
+        file_count = file_count + 1   # Make sure, data file is avaiable
         logging.info('================================================================================')
         logging.info(str(key_file_name) + ' available for local processing as ' + str(local_file_name) + '.')
-        archive_file_name = 'archive/' + local_file_name
+        archive_file_name = 'archive/' + "-".join(t) + '/' + local_file_name
         s3_bucket.upload_file(local_file_name, archive_file_name)
         logging.info(str(local_file_name) + ' is transferred to S3 bucket.')
         logging.info('================================================================================')
@@ -97,11 +141,33 @@ def process_all_data():
         ReconFilewriter.writerow([Phases_reconciliation_data[0], Phases_reconciliation_data[1], Phases_reconciliation_data[2],
                                  Phases_reconciliation_data[3], Phases_reconciliation_data[4], Phases_reconciliation_data[5]])
 
+        recon_local_file_name = ReconFilename
+        recon_archive_file_name = 'archive/' + "-".join(t) + '/' + recon_local_file_name
+        s3_bucket.upload_file(recon_local_file_name, recon_archive_file_name)
+        logging.info(str(ReconFilename) + ' is transferred to S3 bucket after processing data.')
+
+        logging.info(str(LogFilename) + ' will be transferred to S3 bucket.')
+        log_local_file_name = LogFilename
+        log_archive_file_name = 'archive/' + "-".join(t) + '/' + log_local_file_name
+        s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
+
         logging.info('--------------------------------------------------------------------------------')
+
         logging.info('Processing Tasks...')
         Tasks_reconciliation_data = process_Tasks_data(params, s3_bucket, local_file_name)
         ReconFilewriter.writerow([Tasks_reconciliation_data[0], Tasks_reconciliation_data[1], Tasks_reconciliation_data[2],
                                  Tasks_reconciliation_data[3], Tasks_reconciliation_data[4], Tasks_reconciliation_data[5]])
+
+        recon_local_file_name = ReconFilename
+        recon_archive_file_name = 'archive/' + "-".join(t) + '/' + recon_local_file_name
+        s3_bucket.upload_file(recon_local_file_name, recon_archive_file_name)
+        logging.info(str(ReconFilename) + ' is transferred to S3 bucket after processing data.')
+
+        logging.info(str(LogFilename) + ' will be transferred to S3 bucket.')
+        log_local_file_name = LogFilename
+        log_archive_file_name = 'archive/' + "-".join(t) + '/' + log_local_file_name
+        s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
+
         logging.info('--------------------------------------------------------------------------------')
 
         # Delete source files to stop processing twice. This file is copied to S3 additing timestamp
@@ -120,20 +186,22 @@ def process_all_data():
                 #raise
                 logging.error(error)
 
-    # Recon file close and move to S3 
+    # Recon file close and move to S3 only if it has processed data file
     ReconFile.close()
-    local_file_name = ReconFilename
-    archive_file_name = 'archive/' + local_file_name
-    s3_bucket.upload_file(local_file_name, archive_file_name)
-    logging.info(str(ReconFilename) + ' is transferred to S3 bucket.')
+    if file_count > 0:    
+        recon_local_file_name = ReconFilename
+        recon_archive_file_name = 'archive/' + "-".join(t) + '/' + recon_local_file_name
+        s3_bucket.upload_file(recon_local_file_name, recon_archive_file_name)
+        logging.info(str(ReconFilename) + ' is transferred to S3 bucket.')
 
-    # Log file close and move to S3
+    # Log file close and move to S3 only if it has processed data file
     logging.info(str(LogFilename) + ' will be closed and then transferred to S3 bucket.')
     logging.info('End of the Job')
     logging.shutdown()
-    local_file_name = LogFilename
-    archive_file_name = 'archive/' + local_file_name
-    s3_bucket.upload_file(local_file_name, archive_file_name)
+    if file_count > 0:    
+        log_local_file_name = LogFilename
+        log_archive_file_name = 'archive/' + "-".join(t) + '/' + log_local_file_name
+        s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
     
     return
 
