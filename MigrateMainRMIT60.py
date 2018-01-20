@@ -186,6 +186,9 @@ def process_all_data():
                 #raise
                 logging.error(error)
 
+
+    logging.info('================================================================================')                
+
     # Recon file close and move to S3 only if it has processed data file
     ReconFile.close()
     if file_count > 0:    
@@ -203,6 +206,8 @@ def process_all_data():
         log_archive_file_name = 'archive/' + "-".join(t) + '/' + log_local_file_name
         s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
     
+    logging.info('================================================================================')                
+
     return
 
 if __name__ == '__main__':
