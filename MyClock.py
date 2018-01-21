@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
     #au_tz = 'Australia/Sydney'
     au_tz = str(os.environ["TZ"])
-    now = datetime.datetime.now(pytz.timezone(au_tz)
+    now = datetime.datetime.now(pytz.timezone(au_tz))
     st_date = datetime.datetime(now.year, now.month, now.day, 00, 00, 00, 000000)
 
     sched = BlockingScheduler()
