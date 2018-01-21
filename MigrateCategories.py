@@ -8,6 +8,7 @@ import csv
 import psycopg2
 import os
 import sys
+import pytz
 from datetime import datetime
 from GetDBConfigParam import GetDBConfigParam 
 from GetS3Session import GetS3Session 
@@ -214,8 +215,9 @@ def process_Categories_data(DBParams, s3_bucket, local_file_name):
 if __name__ == '__main__':
 
     # Get time
-    t = (str(datetime.now().year), str(datetime.now().month), str(datetime.now().day),
-         str(datetime.now().hour), str(datetime.now().minute), str(datetime.now().second))
+    au_tz = str(os.environ["TZ"])
+    now = datetime.now(pytz.timezone(au_tz))
+    t = (str(now.year), str(now.month), str(now.day), str(now.hour), str(now.minute), str(now.second))
 
     # Get Log file defined
     # Log level "DEBUG" (logging.DEBUG) generate many debug log messages from Boto3

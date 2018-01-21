@@ -7,6 +7,7 @@ import openpyxl
 import csv
 import psycopg2
 import os
+import pytz
 import sys
 from datetime import datetime
 from GetDBConfigParam import GetDBConfigParam
@@ -201,8 +202,9 @@ def process_Campuses_data(DBParams, s3_bucket, local_file_name):
 if __name__ == '__main__':
 
     # Get time
-    t = (str(datetime.now().year), str(datetime.now().month), str(datetime.now().day),
-         str(datetime.now().hour), str(datetime.now().minute), str(datetime.now().second))
+    au_tz = str(os.environ["TZ"])
+    now = datetime.now(pytz.timezone(au_tz))
+    t = (str(now.year), str(now.month), str(now.day), str(now.hour), str(now.minute), str(now.second))
 
     # Get Log file defined
     # Log level "DEBUG" (logging.DEBUG) generate many debug log messages from Boto3
