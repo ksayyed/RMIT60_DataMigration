@@ -160,10 +160,10 @@ def process_all_data():
         logging.info(str(local_file_name) + ' is transferred to S3 bucket.')
         logging.info('================================================================================')
 
-        logging.info('Processing Phases...')
-        Phases_reconciliation_data = process_Phases_data(params, s3_bucket, local_file_name)
-        ReconFilewriter.writerow([Phases_reconciliation_data[0], Phases_reconciliation_data[1], Phases_reconciliation_data[2],
-                                 Phases_reconciliation_data[3], Phases_reconciliation_data[4], Phases_reconciliation_data[5]])
+        #logging.info('Processing Phases...')
+        #Phases_reconciliation_data = process_Phases_data(params, s3_bucket, local_file_name)
+        #ReconFilewriter.writerow([Phases_reconciliation_data[0], Phases_reconciliation_data[1], Phases_reconciliation_data[2],
+        #                         Phases_reconciliation_data[3], Phases_reconciliation_data[4], Phases_reconciliation_data[5]])
 
         recon_local_file_name = ReconFilename
         recon_archive_file_name = 'archive/' + "-".join(t) + '/' + recon_local_file_name
