@@ -224,13 +224,13 @@ def process_all_data():
     # Log file close and move to S3 only if it has processed data file
     logging.info(str(LogFilename) + ' will be closed and then transferred to S3 bucket.')
     logging.info('End of the Job')
-    logging.shutdown()
+    logging.info('================================================================================')                
     if file_count > 0:    
         log_local_file_name = LogFilename
         log_archive_file_name = 'archive/' + "-".join(t) + '/' + log_local_file_name
         s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
+    logging.shutdown()
     
-    logging.info('================================================================================')                
 
     return
 
