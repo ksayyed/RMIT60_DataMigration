@@ -31,7 +31,7 @@ def GetDBConfigParam():
 
     parse.uses_netloc.append("postgres")
     url = parse.urlparse(os.environ["DATABASE_URL"])
-    #logging.info('DATABASE_URL: ' + str(url))
+    logging.info('DATABASE_URL: ' + str(url))
 
     return url
  
