@@ -6,7 +6,7 @@ import MigrateMainRMIT60
 
 def schedule_MigrateMainRMIT60():
     #print("MigrateMainRMIT60 - run every hr between 0-6 AM..." + str(now))
-    MigrateMainRMIT60.main()
+    MigrateMainRMIT60.process_all_data()
 
 if __name__ == '__main__':
 

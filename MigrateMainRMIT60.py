@@ -21,6 +21,29 @@ from MigrateTasks import process_Tasks_data
 
 def process_all_data():
 
+    # Get time
+    au_tz = str(os.environ["TZ"])
+    now = datetime.now(pytz.timezone(au_tz))
+    t = (str(now.year), str(now.month), str(now.day), str(now.hour), str(now.minute), str(now.second))
+
+    # Get Log file defined
+    # Log level "DEBUG" (logging.DEBUG) generate many debug log messages from Boto3
+    LogFilename = "-".join(t) + '_' + r'logfile.log'
+    logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(LogFilename, 'a+', 'utf-8')],
+                            format="%(asctime)-15s - %(levelname)-8s %(message)s")
+    logging.info('Log file: ' + str(LogFilename))
+
+    # Recon file
+    ReconFilename = "-".join(t) + '_' + r'reconfile.csv'
+    ReconFile = open(ReconFilename, "w")
+    ReconFilewriter = csv.writer(ReconFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
+    logging.info('Recon file: ' + str(ReconFilename))
+
+    # Recon file header
+    ReconHeader = ['FileName' , 'File Total Rows' , 'DB Inserted Rows' , 'DB Updated Rows' , 'DB Deleted Rows' , 'File Nochange Rows']
+    ReconFilewriter.writerow(ReconHeader)
+
+    #======================================================================================================================================
     # read connection parameters
     params = GetDBConfigParam()
 
@@ -212,27 +235,4 @@ def process_all_data():
     return
 
 if __name__ == '__main__':
-
-    # Get time
-    au_tz = str(os.environ["TZ"])
-    now = datetime.now(pytz.timezone(au_tz))
-    t = (str(now.year), str(now.month), str(now.day), str(now.hour), str(now.minute), str(now.second))
-
-    # Get Log file defined
-    # Log level "DEBUG" (logging.DEBUG) generate many debug log messages from Boto3
-    LogFilename = "-".join(t) + '_' + r'logfile.log'
-    logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(LogFilename, 'a+', 'utf-8')],
-                            format="%(asctime)-15s - %(levelname)-8s %(message)s")
-    logging.info('Log file: ' + str(LogFilename))
-
-    # Recon file
-    ReconFilename = "-".join(t) + '_' + r'reconfile.csv'
-    ReconFile = open(ReconFilename, "w")
-    ReconFilewriter = csv.writer(ReconFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
-    logging.info('Recon file: ' + str(ReconFilename))
-
-    # Recon file header
-    ReconHeader = ['FileName' , 'File Total Rows' , 'DB Inserted Rows' , 'DB Updated Rows' , 'DB Deleted Rows' , 'File Nochange Rows']
-    ReconFilewriter.writerow(ReconHeader)
-
     process_all_data()
