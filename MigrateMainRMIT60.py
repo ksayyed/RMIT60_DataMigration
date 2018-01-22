@@ -84,13 +84,13 @@ def process_all_data():
 
         recon_local_file_name = ReconFilename
         recon_archive_file_name = 'archive/' + "-".join(t) + '/' + recon_local_file_name
-        s3_bucket.upload_file(recon_local_file_name, recon_archive_file_name)
+        #s3_bucket.upload_file(recon_local_file_name, recon_archive_file_name)
         logging.info(str(ReconFilename) + ' is transferred to S3 bucket after processing data.')
 
         logging.info(str(LogFilename) + ' will be transferred to S3 bucket.')
         log_local_file_name = LogFilename
         log_archive_file_name = 'archive/' + "-".join(t) + '/' + log_local_file_name
-        s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
+        #s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
 
         logging.info('--------------------------------------------------------------------------------')
 
@@ -102,13 +102,13 @@ def process_all_data():
 
         recon_local_file_name = ReconFilename
         recon_archive_file_name = 'archive/' + "-".join(t) + '/' + recon_local_file_name
-        s3_bucket.upload_file(recon_local_file_name, recon_archive_file_name)
+        #s3_bucket.upload_file(recon_local_file_name, recon_archive_file_name)
         logging.info(str(ReconFilename) + ' is transferred to S3 bucket after processing data.')
 
         logging.info(str(LogFilename) + ' will be transferred to S3 bucket.')
         log_local_file_name = LogFilename
         log_archive_file_name = 'archive/' + "-".join(t) + '/' + log_local_file_name
-        s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
+        #s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
 
         logging.info('--------------------------------------------------------------------------------')
 
@@ -119,13 +119,13 @@ def process_all_data():
 
         recon_local_file_name = ReconFilename
         recon_archive_file_name = 'archive/' + "-".join(t) + '/' + recon_local_file_name
-        s3_bucket.upload_file(recon_local_file_name, recon_archive_file_name)
+        #s3_bucket.upload_file(recon_local_file_name, recon_archive_file_name)
         logging.info(str(ReconFilename) + ' is transferred to S3 bucket after processing data.')
 
         logging.info(str(LogFilename) + ' will be transferred to S3 bucket.')
         log_local_file_name = LogFilename
         log_archive_file_name = 'archive/' + "-".join(t) + '/' + log_local_file_name
-        s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
+        #s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
 
         logging.info('--------------------------------------------------------------------------------')
 
@@ -167,13 +167,13 @@ def process_all_data():
 
         recon_local_file_name = ReconFilename
         recon_archive_file_name = 'archive/' + "-".join(t) + '/' + recon_local_file_name
-        s3_bucket.upload_file(recon_local_file_name, recon_archive_file_name)
+        #s3_bucket.upload_file(recon_local_file_name, recon_archive_file_name)
         logging.info(str(ReconFilename) + ' is transferred to S3 bucket after processing data.')
 
         logging.info(str(LogFilename) + ' will be transferred to S3 bucket.')
         log_local_file_name = LogFilename
         log_archive_file_name = 'archive/' + "-".join(t) + '/' + log_local_file_name
-        s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
+        #s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
 
         logging.info('--------------------------------------------------------------------------------')
 
@@ -184,13 +184,13 @@ def process_all_data():
 
         recon_local_file_name = ReconFilename
         recon_archive_file_name = 'archive/' + "-".join(t) + '/' + recon_local_file_name
-        s3_bucket.upload_file(recon_local_file_name, recon_archive_file_name)
+        #s3_bucket.upload_file(recon_local_file_name, recon_archive_file_name)
         logging.info(str(ReconFilename) + ' is transferred to S3 bucket after processing data.')
 
         logging.info(str(LogFilename) + ' will be transferred to S3 bucket.')
         log_local_file_name = LogFilename
         log_archive_file_name = 'archive/' + "-".join(t) + '/' + log_local_file_name
-        s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
+        #s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
 
         logging.info('--------------------------------------------------------------------------------')
 
