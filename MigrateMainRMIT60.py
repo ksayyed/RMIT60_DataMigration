@@ -131,7 +131,7 @@ def process_all_data():
 
         # Delete source files to stop processing twice. This file is copied to S3 additing timestamp
         logging.info(str(key_file_name) + ' will be deleted from S3 as ' + str(local_file_name) + ' is added to S3.')
-        #s3_bucket.Object(key_file_name).delete()
+        s3_bucket.Object(key_file_name).delete()
         
     except botocore.exceptions.ClientError as error:
             if error.response['Error']['Code'] == "404":
@@ -196,7 +196,7 @@ def process_all_data():
 
         # Delete source files to stop processing twice. This file is copied to S3 additing timestamp
         logging.info(str(key_file_name) + ' will be deleted from S3 as ' + str(local_file_name) + ' is added to S3.')
-        #s3_bucket.Object(key_file_name).delete()
+        s3_bucket.Object(key_file_name).delete()
             
     except botocore.exceptions.ClientError as error:
             if error.response['Error']['Code'] == "404":
@@ -229,7 +229,7 @@ def process_all_data():
         log_local_file_name = LogFilename
         log_archive_file_name = 'archive/' + "-".join(t) + '/' + log_local_file_name
         s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
-    #logging.shutdown()
+    logging.shutdown()
     
 
     return
