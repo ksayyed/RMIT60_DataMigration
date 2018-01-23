@@ -229,7 +229,7 @@ def process_all_data():
         log_local_file_name = LogFilename
         log_archive_file_name = 'archive/' + "-".join(t) + '/' + log_local_file_name
         s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
-    logging.shutdown()
+    #logging.shutdown()
     
 
     return

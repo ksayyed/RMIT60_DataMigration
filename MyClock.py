@@ -19,7 +19,8 @@ if __name__ == '__main__':
 
     # Add the job
     jobMigrateMainRMIT60 = sched.add_job(schedule_MigrateMainRMIT60, 'cron', id='MigrateMainRMIT60_run_0-6_every_hr',
-                                         timezone = au_tz, start_date=st_date, hour='*/1')
+                                         timezone = au_tz, start_date=st_date, minute='*/20')
+    #                                    timezone = au_tz, start_date=st_date, hour='*/1')
 
     # Test only - Set the end date and add the job
     #ed_date = datetime.datetime(now.year, now.month, now.day, now.hour, 00, 00, 000000) + datetime.timedelta(hours = 1)
