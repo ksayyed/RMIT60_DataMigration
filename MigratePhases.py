@@ -136,11 +136,11 @@ def process_Phases_data(DBParams, s3_bucket, local_file_name):
                     #Duration != row_exist[5] or
                     ((Duration is not None and row_exist[5] is None) or
                      (Duration is None and row_exist[5] is not None) or
-                     (Duration is not None and row_exist[5] is not None and Duration != row_exist[5])) or
+                     (Duration is not None and row_exist[5] is not None and str(Duration) != str(row_exist[5]))) or
                     #Order != row_exist[6]
                     ((Order is not None and row_exist[6] is None) or
                      (Order is None and row_exist[6] is not None) or
-                     (Order is not None and row_exist[6] is not None and Order != row_exist[6])))) or
+                     (Order is not None and row_exist[6] is not None and str(Order) != str(row_exist[6]))))) or
                   (Delete in ['Yes', 'YES', 'yes'] and row_exist[2] == 'Active')):                       #Inactivated Active record
                 
                 if (Delete not in ['Yes', 'YES', 'yes']):
