@@ -213,14 +213,17 @@ def process_POIs_data(DBParams, s3_bucket, local_file_name):
                     str(BuildingNumber) != str(row_exist[3]) or
                     str(Level) != str(row_exist[4]) or
                     str(RoomNumber) != str(row_exist[5]) or
-                    Latitude != row_exist[6] or
-                    Longitude != row_exist[7] or
+                    #str(Latitude) != str(row_exist[6]) or
+                    #str(Longitude) != str(row_exist[7]) or
+                    str(Latitude) != str(row_exist[6]) or
+                    str(Longitude) != str(row_exist[7]) or
                     str(MeridianCapability) != str(row_exist[8]) or
                     str(MeridianBuildingKey) != str(row_exist[9]) or
                     str(PhoneNumber) != str(row_exist[10]) or
                     str(Website) != str(row_exist[11]) or
                     str(Image) != str(row_exist[12]) or
-                    CategoryID != row_exist[15] or
+                    #str(CategoryID) != str(row_exist[15]) or
+                    str(CategoryID) != str(row_exist[15]) or
                     str(CapusID)  != str(row_exist[16]))) or
                   (Delete in ['Yes', 'YES', 'yes'] and row_exist[18] == 'Active')):                       #Inactivated Active record
                 
@@ -247,9 +250,12 @@ def process_POIs_data(DBParams, s3_bucket, local_file_name):
                                         "categoryId" = %s, 
                                         "campusId" = %s, 
                                         status = %s
-                                    WHERE key = %s;"""
+                                    WHERE id =  %s"""   
+                                    #WHERE key = %s;"""
+                #cur.execute(sql_update, (Name, Description, StreetAddress, BuildingNumber, Level, RoomNumber, Latitude, Longitude,
+                #                          MeridianCapability, MeridianBuildingKey, PhoneNumber, Website, Image, Now, CategoryID, CapusID, Status, POIKey))
                 cur.execute(sql_update, (Name, Description, StreetAddress, BuildingNumber, Level, RoomNumber, Latitude, Longitude,
-                                          MeridianCapability, MeridianBuildingKey, PhoneNumber, Website, Image, Now, CategoryID, CapusID, Status, POIKey))
+                                          MeridianCapability, MeridianBuildingKey, PhoneNumber, Website, Image, Now, CategoryID, CapusID, Status, str(row_exist[19])))
                 
                 if ((Delete not in ['Yes', 'YES', 'yes'] and row_exist[18] == 'Inactive') or
                     (Delete not in ['Yes', 'YES', 'yes'] and row_exist[18] == 'Active')):
