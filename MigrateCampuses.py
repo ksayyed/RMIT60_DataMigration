@@ -140,10 +140,10 @@ def process_Campuses_data(DBParams, s3_bucket, local_file_name):
             # If row exist = Update record if any value or Logical delete is changed
             elif ((Delete not in ['Yes', 'YES', 'yes'] and row_exist[6] == 'Inactive') or                #Activated Inactive record
                   (Delete not in ['Yes', 'YES', 'yes'] and row_exist[6] == 'Active' and                  #Updated Active record     
-                    (Name != row_exist[0] or
-                    CenterLatitude != row_exist[1] or
-                    CenterLongitude != row_exist[2] or 
-                    ZoomLevel != row_exist[3]  )) or
+                    (str(Name) != str(row_exist[0]) or
+                    str(CenterLatitude) != str(row_exist[1]) or
+                    str(CenterLongitude) != str(row_exist[2]) or
+                    str(ZoomLevel) != str(row_exist[3]))) or
                   (Delete in ['Yes', 'YES', 'yes'] and row_exist[6] == 'Active')):                       #Inactivated Active record
                 
                 sql_update = """ UPDATE public.campuses
