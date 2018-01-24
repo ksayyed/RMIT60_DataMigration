@@ -199,7 +199,10 @@ def process_Tasks_data(DBParams, s3_bucket, local_file_name):
                     URL != row_exist[4] or
                     StartDate != dbstartdate or
                     EndDate != dbenddate or
-                    PhaseId != row_exist[7] )) or
+                    #PhaseId is not None row_exist[7]
+                    ((PhaseId is not None and row_exist[7] is None) or 
+                     (PhaseId is None and row_exist[7] is not None) or 
+                     (PhaseId is not None and row_exist[7] is not None and str(PhaseId) != str(row_exist[7]))))) or
                   (Delete in ['Yes', 'YES', 'yes'] and row_exist[8] == 'Active')):                       #Inactivated Active record
                 
                 if (Delete not in ['Yes', 'YES', 'yes']):

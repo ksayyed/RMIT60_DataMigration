@@ -214,16 +214,22 @@ def process_POIs_data(DBParams, s3_bucket, local_file_name):
                     str(Level) != str(row_exist[4]) or
                     str(RoomNumber) != str(row_exist[5]) or
                     #str(Latitude) != str(row_exist[6]) or
+                    ((Latitude is not None and row_exist[6] is None) or
+                     (Latitude is None and row_exist[6] is not None) or
+                     (Latitude is not None and row_exist[6] is not None and str(Latitude) != str(row_exist[6]))) or
                     #str(Longitude) != str(row_exist[7]) or
-                    str(Latitude) != str(row_exist[6]) or
-                    str(Longitude) != str(row_exist[7]) or
+                    ((Longitude is not None and row_exist[7] is None) or
+                     (Longitude is None and row_exist[7] is not None) or
+                     (Longitude is not None and row_exist[7] is not None and str(Longitude) != str(row_exist[7]))) or
                     str(MeridianCapability) != str(row_exist[8]) or
                     str(MeridianBuildingKey) != str(row_exist[9]) or
                     str(PhoneNumber) != str(row_exist[10]) or
                     str(Website) != str(row_exist[11]) or
                     str(Image) != str(row_exist[12]) or
                     #str(CategoryID) != str(row_exist[15]) or
-                    str(CategoryID) != str(row_exist[15]) or
+                    ((CategoryID is not None and row_exist[15] is None) or
+                     (CategoryID is None and row_exist[15] is not None) or
+                     (CategoryID is not None and row_exist[15] is not None and str(CategoryID) != str(row_exist[15]))) or
                     str(CapusID)  != str(row_exist[16]))) or
                   (Delete in ['Yes', 'YES', 'yes'] and row_exist[18] == 'Active')):                       #Inactivated Active record
                 

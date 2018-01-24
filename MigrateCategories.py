@@ -152,8 +152,14 @@ def process_Categories_data(DBParams, s3_bucket, local_file_name):
             elif ((Delete not in ['Yes', 'YES', 'yes'] and row_exist[5] == 'Inactive') or                #Activated Inactive record
                   (Delete not in ['Yes', 'YES', 'yes'] and row_exist[5] == 'Active' and                  #Updated Active record     
                     (Name != row_exist[0] or
-                    Order!= row_exist[1] or
-                    ParentID != row_exist[2])) or
+                    #Order!= row_exist[1] or
+                    ((Order is not None and row_exist[1] is None) or 
+                     (Order is None and row_exist[1] is not None) or 
+                     (Order is not None and row_exist[1] is not None and str(Order) != str(row_exist[1]))) or
+                    #ParentID != row_exist[2]
+                    ((ParentID is not None and row_exist[2] is None) or 
+                     (ParentID is None and row_exist[2] is not None) or 
+                     (ParentID is not None and row_exist[2] is not None and str(ParentID) != str(row_exist[2]))))) or
                   (Delete in ['Yes', 'YES', 'yes'] and row_exist[5] == 'Active')):                       #Inactivated Active record
                 
                 if (Delete not in ['Yes', 'YES', 'yes']):

@@ -141,9 +141,18 @@ def process_Campuses_data(DBParams, s3_bucket, local_file_name):
             elif ((Delete not in ['Yes', 'YES', 'yes'] and row_exist[6] == 'Inactive') or                #Activated Inactive record
                   (Delete not in ['Yes', 'YES', 'yes'] and row_exist[6] == 'Active' and                  #Updated Active record     
                     (str(Name) != str(row_exist[0]) or
-                    str(CenterLatitude) != str(row_exist[1]) or
-                    str(CenterLongitude) != str(row_exist[2]) or
-                    str(ZoomLevel) != str(row_exist[3]))) or
+                    #str(CenterLatitude) != str(row_exist[1]) or
+                    ((CenterLatitude is not None and row_exist[1] is None) or 
+                     (CenterLatitude is None and row_exist[1] is not None) or 
+                     (CenterLatitude is not None and row_exist[1] is not None and str(CenterLatitude) != str(row_exist[1]))) or
+                    #str(CenterLongitude) != str(row_exist[2]) or
+                    ((CenterLongitude is not None and row_exist[2] is None) or 
+                     (CenterLongitude is None and row_exist[2] is not None) or 
+                     (CenterLongitude is not None and row_exist[2] is not None and str(CenterLongitude) != str(row_exist[2]))) or
+                    #str(ZoomLevel) != str(row_exist[3])
+                    ((ZoomLevel is not None and row_exist[3] is None) or 
+                     (ZoomLevel is None and row_exist[3] is not None) or 
+                     (ZoomLevel is not None and row_exist[3] is not None and str(ZoomLevel) != str(row_exist[3]))))) or                  
                   (Delete in ['Yes', 'YES', 'yes'] and row_exist[6] == 'Active')):                       #Inactivated Active record
                 
                 sql_update = """ UPDATE public.campuses
