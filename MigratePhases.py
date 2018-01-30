@@ -111,6 +111,12 @@ def process_Phases_data(DBParams, s3_bucket, local_file_name):
             # If row does not exist = Insert the record    
             if row_exist is None:
                 #logging.info('Data inset')
+
+                if (Delete not in ['Yes', 'YES', 'yes']):
+                    status = 'Active'
+                else:
+                    status = 'Inactive'
+
                 sql_insert = """ INSERT INTO public.phases(title,
                                                         description,
                                                         duration,
@@ -121,7 +127,7 @@ def process_Phases_data(DBParams, s3_bucket, local_file_name):
                                                         status)
                                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                                 RETURNING id;"""
-                cur.execute(sql_insert, (Title, Description, Duration, Order, Now, Now, PhaseKey, 'Active'))
+                cur.execute(sql_insert, (Title, Description, Duration, Order, Now, Now, PhaseKey, status))
                 inserted_id = cur.fetchone()[0]
                 inserted_rows = cur.rowcount
                 db_inserted_rows = db_inserted_rows + inserted_rows             #Reconciliation
