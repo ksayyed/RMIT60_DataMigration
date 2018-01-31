@@ -117,7 +117,7 @@ def process_Features_data(DBParams, s3_bucket, local_file_name):
                 logging.info('Features Type is not valid value, Feature Key and Type: ' + str(FeaturesKey) + ',' + str(FileType))
                 Type = None
 
-            Name = None
+            Name = FeaturesKey
             
             # fileValues = (POIKey, POIID, Delete, Status, FeaturesKey, FileType, Type, Level)
             # logging.info('File data: ' + str(fileValues))
@@ -169,7 +169,7 @@ def process_Features_data(DBParams, s3_bucket, local_file_name):
             # If row exist = Update record if any value or Logical delete is changed
             elif ((Delete not in ['Yes', 'YES', 'yes'] and row_exist[6] == 'Inactive') or                #Activated Inactive record
                   (Delete not in ['Yes', 'YES', 'yes'] and row_exist[6] == 'Active' and                  #Updated Active record     
-                    (#str(Name) != str(row_exist[1]) or             # no file data
+                    (str(Name) != str(row_exist[1]) or
                     str(Type) != str(row_exist[2]) or
                     str(Level) != str(row_exist[3]) or
                     #POIID != row_exist[0]
