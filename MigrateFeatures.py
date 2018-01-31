@@ -80,11 +80,11 @@ def process_Features_data(DBParams, s3_bucket, local_file_name):
 
         # Read all lines after header and process them
         for r in range(3, sheet.max_row+1):
-            POIKey = sheet.cell(row=r, column=1).value
-            Delete = sheet.cell(row=r, column=2).value
-            FeaturesKey = sheet.cell(row=r, column=3).value
-            FileType = sheet.cell(row=r, column=4).value
-            Level = sheet.cell(row=r, column=5).value
+            POIKey = str(sheet.cell(row=r, column=1).value)
+            Delete = str(sheet.cell(row=r, column=2).value)
+            FeaturesKey = str(sheet.cell(row=r, column=3).value)
+            FileType = str(sheet.cell(row=r, column=4).value)
+            Level = str(sheet.cell(row=r, column=5).value)
 
             if (Delete not in ['Yes', 'YES', 'yes']):
                 Status = 'Active'
