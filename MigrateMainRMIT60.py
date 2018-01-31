@@ -17,6 +17,7 @@ from MigrateCategories import process_Categories_data
 from MigratePhases import process_Phases_data
 from MigratePOIs import process_POIs_data
 from MigrateTasks import process_Tasks_data
+from MigrateFeatures import process_Features_data
 
 
 def process_all_data():
@@ -127,6 +128,22 @@ def process_all_data():
         log_archive_file_name = 'archive/' + "-".join(t) + '/' + log_local_file_name
         s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
 
+        logging.info('--------------------------------------------------------------------------------')
+
+        logging.info('Processing Features...' )
+        Features_reconciliation_data = process_Features_data(params, s3_bucket, local_file_name)
+        ReconFilewriter.writerow([Features_reconciliation_data[0], Features_reconciliation_data[1], Features_reconciliation_data[2],
+                                 Features_reconciliation_data[3], Features_reconciliation_data[4], Features_reconciliation_data[5]])
+
+        recon_local_file_name = ReconFilename
+        recon_archive_file_name = 'archive/' + "-".join(t) + '/' + recon_local_file_name
+        s3_bucket.upload_file(recon_local_file_name, recon_archive_file_name)
+        logging.info(str(ReconFilename) + ' is transferred to S3 bucket after processing data.')
+
+        logging.info(str(LogFilename) + ' will be transferred to S3 bucket.')
+        log_local_file_name = LogFilename
+        log_archive_file_name = 'archive/' + "-".join(t) + '/' + log_local_file_name
+        s3_bucket.upload_file(log_local_file_name, log_archive_file_name)
         logging.info('--------------------------------------------------------------------------------')
 
         # Delete source files to stop processing twice. This file is copied to S3 additing timestamp
