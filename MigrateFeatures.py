@@ -103,15 +103,15 @@ def process_Features_data(DBParams, s3_bucket, local_file_name):
             else:
                 POIID = dbPOIID[0]
 
-            if FileType = 'Water stations':
+            if FileType == 'Water stations':
                 Type = 'water_station'
-            elif FileType = 'Microwaves':
+            elif FileType == 'Microwaves':
                 Type = 'microwave'
-            elif FileType = 'Lockers':
+            elif FileType == 'Lockers':
                 Type = 'lockers'
-            elif FileType = 'Computer labs':
+            elif FileType == 'Computer labs':
                 Type = 'computer_labs'
-            elif FileType = 'Printers':
+            elif FileType == 'Printers':
                 Type = 'printer'
             else:
                 logging.info('Features Type is not valid value, Feature Key and Type: ' + str(FeaturesKey) + ',' + str(FileType))
