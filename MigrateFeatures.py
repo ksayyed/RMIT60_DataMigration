@@ -156,7 +156,7 @@ def process_Features_data(DBParams, s3_bucket, local_file_name):
                                                                 "updatedAt",
                                                                 status,
                                                                 key)
-                                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                                 RETURNING id;"""
 
                 cur.execute(sql_insert, (POIID, Name, Type, Level, Now, Now, Status, FeaturesKey))
